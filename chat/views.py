@@ -1,19 +1,17 @@
-from rest_framework.decorators import api_view,permission_classes
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .models import Conversation, Message
 
-
-
-# Create New Chat
-@api_view(['POS'])
+# 1. Create New Chat
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_chat(request):
     convo = Conversation.objects.create(user=request.user)
-    return Response({"id":convo.id})
+    return Response({"id": convo.id})
 
 
-# Send Message 
+# 2. Send Message
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def send_message(request):
@@ -22,27 +20,31 @@ def send_message(request):
 
     convo = Conversation.objects.get(id=convo_id)
 
+    # save user message
     Message.objects.create(
         conversation=convo,
-        role = "user",
+        role="user",
         content=text
     )
 
-    ai_reply = request.data.get("ai-reply")
+    # dummy AI reply
+    ai_reply = request.objects.get("ai-reply")
 
     Message.objects.create(
-        conversation= convo,
+        conversation=convo,
         role="ai",
-        content = ai_reply
+        content=ai_reply
     )
 
+    # auto title
     if not convo.title:
         convo.title = text[:30]
         convo.save()
 
-    return Response({"reply":ai_reply})
+    return Response({"reply": ai_reply})
 
-# Get all Chats 
+
+# 3. Get All Chats (Sidebar)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_chats(request):
@@ -56,7 +58,7 @@ def get_chats(request):
     return Response(data)
 
 
-# Get All Message 
+# 4. Get Messages
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_messages(request, id):
