@@ -6,6 +6,9 @@ from .serializers import RegisterSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import redirect
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth.decorators import login_required
 
 
 @api_view(['POST'])
@@ -57,9 +60,20 @@ def logout(request):
         return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
     
 
-from django.shortcuts import redirect
-from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth.decorators import login_required
+@api_view(['GET'])
+@permission_classes([IsAuthenticated]) # Ye line user check khud kar legi
+def get_user(request):
+    user = request.user
+    
+    data = {
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        # Agar aapne social account link kiya hai toh yahan aur info bhi add kar sakte hain
+    }
+    
+    return Response(data)
+
 
 @login_required
 def google_login_callback(request):

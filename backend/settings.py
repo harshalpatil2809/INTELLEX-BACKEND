@@ -153,6 +153,16 @@ STATIC_URL = 'static/'
 
 CORS_ALLOW_ALL_ORIGINS = True 
 
+# settings.py
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "authorization",
+    "content-type",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
+
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
