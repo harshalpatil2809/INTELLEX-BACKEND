@@ -173,7 +173,7 @@ AUTHENTICATION_BACKENDS = (
     'allauth.account.auth_backends.AuthenticationBackend',
 )
 
-LOGIN_REDIRECT_URL = 'http://localhost:3000'
+LOGIN_REDIRECT_URL = '/api/auth/google/callback/'
 LOGOUT_REDIRECT_URL = "/"
 
 

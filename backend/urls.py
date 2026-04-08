@@ -17,17 +17,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path,include
 from rest_framework_simplejwt.views import TokenRefreshView
-from django.shortcuts import redirect
-
-
-
 
 
 urlpatterns = [
-
     path('admin/', admin.site.urls),
-    path('api/auth/', include('users.urls')),
+    path('api/auth/', include('users.urls')), 
     path('api/chat/', include('chat.urls')),
     path('api/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/auth/rest/', include('dj_rest_auth.urls')),
     path('accounts/', include('allauth.urls')),
 ]

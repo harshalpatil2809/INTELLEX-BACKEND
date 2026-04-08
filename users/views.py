@@ -55,3 +55,20 @@ def logout(request):
 
     except Exception as e:
         return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+from django.shortcuts import redirect
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def google_login_callback(request):
+    user = request.user
+    refresh = RefreshToken.for_user(user)
+    
+    access_token = str(refresh.access_token)
+    refresh_token = str(refresh)
+
+    # Redirecting back to Next.js with tokens in URL
+    frontend_url = "http://localhost:3000/auth-callback" # Next.js ka ek route banaiye
+    return redirect(f"{frontend_url}?access={access_token}&refresh={refresh_token}")
