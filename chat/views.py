@@ -16,53 +16,45 @@ def create_chat(request):
 
 
 
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-# 2. Send Message
+
+GROQ_KEY = os.getenv("GROQ_API_KEY") # Replace with real key
+client = Groq(api_key=GROQ_KEY)
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def send_message(request):
-    convo_id = request.data.get("conversation_id")
-    text = request.data.get("message")
-
-    if not convo_id or not text:
-        return Response({"error": "Missing data"}, status=400)
-
     try:
-        convo = Conversation.objects.get(id=convo_id, user=request.user)
+        convo_id = request.data.get("conversation_id")
+        text = request.data.get("message")
 
-        Message.objects.create(
-            conversation=convo,
-            role="user",
-            content=text
-        )
+        # 1. Conversation Dhundna
+        try:
+            convo = Conversation.objects.get(id=convo_id, user=request.user)
+        except Conversation.DoesNotExist:
+            print("❌ Chat not found for this ID")
+            return Response({"error": "Chat not found"}, status=404)
 
-        chat_completion = client.chat.completions.create(
-            messages=[
-                {
-                    "role": "user",
-                    "content": text,
-                }
-            ],
-            model="llama3-8b-8192",
-        )
-        
-        ai_reply = chat_completion.choices[0].message.content
+        # 2. User Message Save
+        Message.objects.create(conversation=convo, role="user", content=text)
 
-        Message.objects.create(
-            conversation=convo,
-            role="ai",
-            content=ai_reply
-        )
+        # 3. Groq API Call
+        try:
+            chat_completion = client.chat.completions.create(
+                messages=[{"role": "user", "content": text}],
+                model="openai/gpt-oss-120b",
+            )
+            ai_reply = chat_completion.choices[0].message.content
+        except Exception as groq_err:
+            print(f"❌ Groq API Error: {str(groq_err)}")
+            return Response({"error": f"AI Error: {str(groq_err)}"}, status=502)
 
-        if not convo.title or convo.title == "New Chat":
-            convo.title = text[:30] + "..." if len(text) > 30 else text
-            convo.save()
+        # 4. AI Message Save
+        Message.objects.create(conversation=convo, role="ai", content=ai_reply)
 
         return Response({"reply": ai_reply})
 
-    except Conversation.DoesNotExist:
-        return Response({"error": "Conversation not found"}, status=404)
     except Exception as e:
+        print(f"❌ CRASH ERROR: {str(e)}") # Is line ko terminal mein check karein
         return Response({"error": str(e)}, status=500)
 
 
