@@ -27,22 +27,34 @@ def register(request):
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+from rest_framework.permissions import AllowAny
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
+@csrf_exempt
 @api_view(['POST'])
+@permission_classes([AllowAny]) # 🔥 Ise 'IsAuthenticated' se 'AllowAny' karein
 def login(request):
     username = request.data.get("username")
     password = request.data.get("password")
 
+    print(f"Attempting login for: {username}") # Debug print
+
+    # Django authenticate check
     user = authenticate(username=username, password=password)
 
-    if user:
+    if user is not None:
+        print(f"User {username} authenticated successfully!") # Debug print
         refresh = RefreshToken.for_user(user)
+        
         return Response({
             'access': str(refresh.access_token),
-            'refresh': str(refresh)
-        })
-
-    return Response({'error': 'Invalid credentials'}, status=400)
+            'refresh': str(refresh),
+            'username': user.username
+        }, status=status.HTTP_200_OK)
+    else:
+        print(f"Authentication failed for user: {username}") # Debug print
+        return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 @api_view(['POST'])
@@ -61,18 +73,34 @@ def logout(request):
     
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated]) # Ye line user check khud kar legi
+@permission_classes([IsAuthenticated])
 def get_user(request):
-    user = request.user
-    
-    data = {
-        "id": user.id,
-        "username": user.username,
-        "email": user.email,
-        # Agar aapne social account link kiya hai toh yahan aur info bhi add kar sakte hain
-    }
-    
-    return Response(data)
+    try:
+        user = request.user
+        
+        # Check karein agar user object exist karta hai
+        if not user:
+            return Response(
+                {"error": "User found but data is missing"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        data = {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+        }
+        
+        return Response(data, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        # Error ko console/logs mein print karein
+        print(f"Error fetching user: {str(e)}")
+        
+        return Response(
+            {"error": "Something went wrong on the server"}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 @login_required
