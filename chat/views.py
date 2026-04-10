@@ -3,6 +3,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .models import Conversation, Message
 
+import os
+from groq import Groq
+
+
 # 1. Create New Chat
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -11,6 +15,8 @@ def create_chat(request):
     return Response({"id": convo.id})
 
 
+
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 # 2. Send Message
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -18,30 +24,46 @@ def send_message(request):
     convo_id = request.data.get("conversation_id")
     text = request.data.get("message")
 
-    convo = Conversation.objects.get(id=convo_id)
+    if not convo_id or not text:
+        return Response({"error": "Missing data"}, status=400)
 
-    # save user message
-    Message.objects.create(
-        conversation=convo,
-        role="user",
-        content=text
-    )
+    try:
+        convo = Conversation.objects.get(id=convo_id, user=request.user)
 
-    # dummy AI reply
-    ai_reply = request.objects.get("ai-reply")
+        Message.objects.create(
+            conversation=convo,
+            role="user",
+            content=text
+        )
 
-    Message.objects.create(
-        conversation=convo,
-        role="ai",
-        content=ai_reply
-    )
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "user",
+                    "content": text,
+                }
+            ],
+            model="llama3-8b-8192",
+        )
+        
+        ai_reply = chat_completion.choices[0].message.content
 
-    # auto title
-    if not convo.title:
-        convo.title = text[:30]
-        convo.save()
+        Message.objects.create(
+            conversation=convo,
+            role="ai",
+            content=ai_reply
+        )
 
-    return Response({"reply": ai_reply})
+        if not convo.title or convo.title == "New Chat":
+            convo.title = text[:30] + "..." if len(text) > 30 else text
+            convo.save()
+
+        return Response({"reply": ai_reply})
+
+    except Conversation.DoesNotExist:
+        return Response({"error": "Conversation not found"}, status=404)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
 
 
 # 3. Get All Chats (Sidebar)
