@@ -211,6 +211,8 @@ LOGIN_REDIRECT_URL = 'https://intellex-ai-harshal.vercel.app/auth-callback'
 LOGOUT_REDIRECT_URL = "/"
 
 
+SOCIALACCOUNT_ADAPTER = 'allauth.socialaccount.adapter.DefaultSocialAccountAdapter'
+
 # It removes conformation page
 SOCIALACCOUNT_LOGIN_ON_GET = True
 SOCIALACCOUNT_AUTO_SIGNUP = True
