@@ -191,6 +191,15 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
+REST_AUTH = {
+    'USE_JWT': True,
+    'JWT_AUTH_COOKIE': 'access',
+    'JWT_AUTH_REFRESH_COOKIE': 'refresh',
+    'JWT_AUTH_HTTPONLY': False, # Frontend access ke liye
+    'JWT_AUTH_SECURE': True,
+    'JWT_AUTH_SAMESITE': 'None',
+}
+
 AUTH_USER_MODEL = 'users.User'
 
 AUTHENTICATION_BACKENDS = (
@@ -219,3 +228,22 @@ CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = 'None'
 SESSION_COOKIE_SAMESITE = 'None'
+
+
+ACCOUNT_USER_MODEL_USERNAME_FIELD = 'username'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = True
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+
+def update_site():
+    try:
+        from django.contrib.sites.models import Site
+        site = Site.objects.get(id=SITE_ID)
+        site.domain = "intellex-backend.onrender.com"
+        site.name = "Intellex"
+        site.save()
+    except Exception:
+        pass
+
+update_site()
