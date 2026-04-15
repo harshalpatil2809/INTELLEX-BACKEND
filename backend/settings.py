@@ -241,7 +241,7 @@ ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-
+FRONTEND_URL = "https://intellex-ai-harshal.vercel.app"
 
 def update_site():
     try:
