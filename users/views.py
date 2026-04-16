@@ -112,5 +112,5 @@ def google_login_callback(request):
     refresh_token = str(refresh)
 
     # Redirecting back to Next.js with tokens in URL
-    frontend_url = "http://localhost:3000/auth-callback" # Next.js ka ek route banaiye
+    frontend_url = "https://intellex-ai-harshal.vercel.app/auth-callback"
     return redirect(f"{frontend_url}?access={access_token}&refresh={refresh_token}")
