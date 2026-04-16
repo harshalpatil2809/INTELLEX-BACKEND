@@ -208,7 +208,7 @@ AUTHENTICATION_BACKENDS = (
     'allauth.account.auth_backends.AuthenticationBackend',
 )
 
-LOGIN_REDIRECT_URL = 'https://intellex-ai-harshal.vercel.app/auth-callback'
+LOGIN_REDIRECT_URL = '/api/auth/google/callback/'
 LOGOUT_REDIRECT_URL = "/"
 
 

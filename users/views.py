@@ -103,14 +103,15 @@ def get_user(request):
         )
 
 
-@login_required
 def google_login_callback(request):
     user = request.user
+
+    if not user.is_authenticated:
+        return redirect("https://intellex-ai-harshal.vercel.app/login?error=social-auth-failed")
+
     refresh = RefreshToken.for_user(user)
-    
     access_token = str(refresh.access_token)
     refresh_token = str(refresh)
 
-    # Redirecting back to Next.js with tokens in URL
     frontend_url = "https://intellex-ai-harshal.vercel.app/auth-callback"
     return redirect(f"{frontend_url}?access={access_token}&refresh={refresh_token}")
