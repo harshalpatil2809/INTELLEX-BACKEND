@@ -17,10 +17,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path,include
 from rest_framework_simplejwt.views import TokenRefreshView
+from django.http import HttpResponse
+
+def ping():
+    return HttpResponse("Server is up!", status=200)
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('ping/',ping),
     path('api/auth/', include('users.urls')), 
     path('api/chat/', include('chat.urls')),
     path('api/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
