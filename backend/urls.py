@@ -19,7 +19,7 @@ from django.urls import path,include
 from rest_framework_simplejwt.views import TokenRefreshView
 from django.http import HttpResponse
 
-def ping():
+def ping(request):
     return HttpResponse("Server is up!", status=200)
 
 
