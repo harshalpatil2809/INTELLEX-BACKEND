@@ -225,7 +225,7 @@ JWT_AUTH_COOKIE = 'access'
 JWT_AUTH_REFRESH_COOKIE = 'refresh'
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://intellex-backend.onrender.com",
+    "https://intellex-backend-cgpy.onrender.com",
     "https://intellex-ai-harshal.vercel.app",
 ]
 
@@ -249,7 +249,7 @@ def update_site():
     try:
         from django.contrib.sites.models import Site
         site = Site.objects.get(id=SITE_ID)
-        site.domain = "intellex-backend.onrender.com"
+        site.domain = "intellex-backend-cgpy.onrender.com"
         site.name = "Intellex"
         site.save()
     except Exception:

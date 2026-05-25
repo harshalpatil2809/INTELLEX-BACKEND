@@ -77,8 +77,6 @@ def logout(request):
 def get_user(request):
     try:
         user = request.user
-        
-        # Check karein agar user object exist karta hai
         if not user:
             return Response(
                 {"error": "User found but data is missing"}, 
@@ -94,7 +92,6 @@ def get_user(request):
         return Response(data, status=status.HTTP_200_OK)
 
     except Exception as e:
-        # Error ko console/logs mein print karein
         print(f"Error fetching user: {str(e)}")
         
         return Response(
